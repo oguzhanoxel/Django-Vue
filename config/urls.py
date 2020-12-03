@@ -18,11 +18,14 @@ from django.urls import path
 
 from apps.core import views as core_views
 from apps.store import views as store_views
+from apps.cart import views as cart_views
 
 urlpatterns = [
     path('', core_views.frontpage, name='frontpage'),
+    path('admin/', admin.site.urls),
+    path('cart/', cart_views.cart, name='cart'),
     path('contact/', core_views.contact, name='contact'),
+    path('about/', core_views.about, name='about'),
     path('<slug:category_slug>/<slug:slug>/', store_views.product_detail, name='product_detail'),
     path('<slug:slug>/', store_views.category_detail, name='category_detail'),
-    path('admin/', admin.site.urls),
 ]
