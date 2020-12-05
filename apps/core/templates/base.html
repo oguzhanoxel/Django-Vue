@@ -7,7 +7,7 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
     </head>
     <body>
-        <nav class="navbar">
+        <nav class="navbar is-dark">
             <div class="navbar-brand">
                 <a class="navbar-item" href="{% url 'frontpage' %}">Django-Vue</a>
 
@@ -46,5 +46,8 @@
                 <a href="{% url 'about' %}" class="navbar-item">About</a>
             </div>
         </footer>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+        {% block scripts %}
+        {% endblock %}
     </body>
 </html>

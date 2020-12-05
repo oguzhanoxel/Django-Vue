@@ -20,12 +20,21 @@ from apps.core import views as core_views
 from apps.store import views as store_views
 from apps.cart import views as cart_views
 
+from apps.store.api import (
+    api_add_to_cart,
+    api_remove_from_cart,
+)
+
 urlpatterns = [
     path('', core_views.frontpage, name='frontpage'),
     path('admin/', admin.site.urls),
-    path('cart/', cart_views.cart, name='cart'),
+    path('cart/', cart_views.cart_detail, name='cart'),
     path('contact/', core_views.contact, name='contact'),
     path('about/', core_views.about, name='about'),
+    # API
+    path('api/add_to_cart/', api_add_to_cart, name="api_add_to_cart"),
+    path('api/remove_from_cart/', api_remove_from_cart, name="api_remove_from_cart"),
+    # Store
     path('<slug:category_slug>/<slug:slug>/', store_views.product_detail, name='product_detail'),
     path('<slug:slug>/', store_views.category_detail, name='category_detail'),
 ]
