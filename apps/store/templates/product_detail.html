@@ -4,6 +4,8 @@
 
 {% block content %}
     <div id="productapp">
+        <img src="/{{ product.image }}">
+        <hr>
         <h1 class="title">{{ product.title }}</h1>
         <h2 class="subtitle">{{ product.price }} TL</h2>
 
@@ -20,7 +22,7 @@
     var productapp = new Vue ({
         el: '#productapp',
         delimiters: ['[[', ']]'],
-        store: store,
+        //store: store,
         data () {
             return {
 
