@@ -10,6 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
+STRIPE_API_KEY_PUBLISHABLE = "pk_test_51HvlvyEUGeYMPljv0V6xn13ksnG3FZUi0Swc4XBkhkKd1FzmaR6wrbnDuK7P3aa5t2w2Jt4uvzcWJSAuPKzQMjGu00KbqPkz3h"
+STRIPE_API_KEY_HIDDEN = "sk_test_51HvlvyEUGeYMPljvtWzpEgvHd0FHxo7c9vLsQjQUObk6JG8zwVAESbOgQGCbhmLZLnlNGCAK4cFytqcyDhmKbBz300yoafmemm"
+
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -71,6 +74,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'apps.store.context_processors.menu_categories',
+                'apps.cart.context_processors.cart',
             ],
         },
     },
