@@ -90,48 +90,161 @@
         {% else %}
             <p>Your cart is empty !</p>
         {% endif %}
+
+        <div v-if="errors.length > 0">
+            <article class="message is-danger"
+                v-for="error in errors"
+            >
+                <div class="message-header">
+                    <p>Error</p>
+                </div>
+                <div class="message-body">
+                    [[ error ]]
+                </div>
+            </article>
+        </div>
+
+        <button @click="buy()">Check out</button>
     </div>
 {% endblock %}
 
 {% block scripts %}
-    <script>
-        var productapp = new Vue ({
-            el: '#cartapp',
-            delimiters: ['[[', ']]'],
-            store: store,
-            data () {
-                return {
-                    first_name: '',
-                    last_name: '',
-                    email: '',
-                    address: '',
-                    zipcode: '',
-                    place: '',
-                    products: [{{ productsstring|safe }}],
+<script type="application/javascript" src="https://js.stripe.com/v3/"></script>
+<script>
+    var productapp = new Vue ({
+        el: '#cartapp',
+        delimiters: ['[[', ']]'],
+        store: store,
+        data () {
+            return {
+                errors: [],
+                first_name: '',
+                last_name: '',
+                email: '',
+                address: '',
+                zipcode: '',
+                place: '',
+                products: [{{ productsstring|safe }}],
+            }
+        },
+        computed: {
+            numItems: function() {
+                return store.state.numItems
+            },
+            totalCost: function() {
+                return store.state.totalCost
+            }
+        },
+        methods: {
+            buy() {
+                var data = {
+                    'first_name': this.first_name,
+                    'last_name': this.last_name,
+                    'email': this.email,
+                    'address': this.address,
+                    'zipcode': this.zipcode,
+                    'place': this.place,
+                };
+
+                this.errors = [];
+
+                if (data.first_name === '') {
+                    this.errors.push('First name is empty');
+                }
+
+                if (data.last_name === '') {
+                    this.errors.push('Last name is empty');
+                }
+
+                if (data.email === '') {
+                    this.errors.push('E-mail is empty');
+                }
+
+                if (data.address === '') {
+                    this.errors.push('Address is empty');
+                }
+
+                if (data.zipcode === '') {
+                    this.errors.push('Zip code is empty');
+                }
+
+                if (data.place === '') {
+                    this.errors.push('Place is empty');
+                }
+
+                if (this.errors.length === 0) {
+                    var stripe = Stripe('{{ pub_key }}');
+
+                    fetch('/api/create_checkout_session/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify(data)
+                    })
+                    .then(function(response) {
+                        return response.json()
+                    })
+                    .then(function(session) {
+                        return stripe.redirectToCheckout({ sessionId: session.session.id })
+                    })
+                    .then(function(result) {
+                        if (result.error) {
+                            alert(result.error.message)
+                        }
+                    })
+                    .catch(function(error) {
+                        console.log('error:', error);
+                    });
                 }
             },
-            computed: {
-                numItems: function() {
-                    return store.state.numItems
+            submitForm() {
+                console.log('Submit form');
+
+                var data = {
+                    'first_name': this.first_name,
+                    'last_name': this.last_name,
+                    'email': this.email,
+                    'address': this.address,
+                    'zipcode': this.zipcode,
+                    'place': this.place,
+                };
+
+                fetch('/api/checkout/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
                 },
-                totalCost: function() {
-                    return store.state.totalCost
-                }
+                credentials: 'same-origin',
+                body: JSON.stringify(data)
+                })
+                .then((response) => {
+                    console.log('Success');
+                    console.log(response);
+
+                    window.location.href = '/';
+                })
+                .catch(function (error) {
+                    console.log('Error 2');
+                    console.log(error);
+                })
             },
-            methods: {
-                submitForm() {
-                    console.log('Submit form');
+            incrementQuantity(product_id, quantity, price) {
+                console.log('Product_id:', product_id);
 
-                    var data = {
-                        'first_name': this.first_name,
-                        'last_name': this.last_name,
-                        'email': this.email,
-                        'address': this.address,
-                        'zipcode': this.zipcode,
-                        'place': this.place,
-                    };
+                var data = {
+                    'product_id': product_id,
+                    'update': true,
+                    'quantity': parseInt(quantity) + 1
+                };
 
-                    fetch('/api/checkout/', {
+                store.commit('increment', 1);
+                store.commit('changeTotalCost', parseFloat(price));
+
+                fetch('/api/add_to_cart/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -139,30 +252,39 @@
                     },
                     credentials: 'same-origin',
                     body: JSON.stringify(data)
-                    })
-                    .then((response) => {
-                        console.log('Success');
-                        console.log(response);
+                })
+                .then((response) => {
+                    console.log(response)
 
-                        window.location.href = '/';
-                    })
-                    .catch(function (error) {
-                        console.log('Error 2');
-                        console.log(error);
-                    })
-                },
-                incrementQuantity(product_id, quantity, price) {
-                    console.log('Product_id:', product_id);
+                    for (var i = 0; i < this.products.length; i++) {
+                        var product = this.products[i];
 
-                    var data = {
-                        'product_id': product_id,
-                        'update': true,
-                        'quantity': parseInt(quantity) + 1
-                    };
+                        if (product.id === product_id) {
+                            this.products[i].quantity = parseInt(this.products[i].quantity) + 1;
+                            this.products[i].total_price = parseInt(this.products[i].quantity) * parseFloat(this.products[i].price)
+                        }
+                    }
+                })
+                .catch(function (error) {
+                    console.log('Error 2');
+                    console.log(error);
+                })
+            },
+            decrementQuantity(product_id, quantity, price) {
+                console.log('Product_id:', product_id);
 
-                    store.commit('increment', 1);
-                    store.commit('changeTotalCost', parseFloat(price));
-
+                var data = {
+                    'product_id': product_id,
+                    'update': true,
+                    'quantity': parseInt(quantity) - 1
+                };
+                
+                if (parseInt(quantity) - 1 === 0) {
+                    this.removeFromCart(product_id);
+                } else {
+                    store.commit('increment', -1);
+                    store.commit('changeTotalCost', -parseFloat(price));
+                    
                     fetch('/api/add_to_cart/', {
                         method: 'POST',
                         headers: {
@@ -179,7 +301,7 @@
                             var product = this.products[i];
 
                             if (product.id === product_id) {
-                                this.products[i].quantity = parseInt(this.products[i].quantity) + 1;
+                                this.products[i].quantity = parseInt(this.products[i].quantity) - 1;
                                 this.products[i].total_price = parseInt(this.products[i].quantity) * parseFloat(this.products[i].price)
                             }
                         }
@@ -188,76 +310,35 @@
                         console.log('Error 2');
                         console.log(error);
                     })
-                },
-                decrementQuantity(product_id, quantity, price) {
-                    console.log('Product_id:', product_id);
-
-                    var data = {
-                        'product_id': product_id,
-                        'update': true,
-                        'quantity': parseInt(quantity) - 1
-                    };
-                    
-                    if (parseInt(quantity) - 1 === 0) {
-                        this.removeFromCart(product_id);
-                    } else {
-                        store.commit('increment', -1);
-                        store.commit('changeTotalCost', -parseFloat(price));
-                        
-                        fetch('/api/add_to_cart/', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRFToken': '{{ csrf_token }}'
-                            },
-                            credentials: 'same-origin',
-                            body: JSON.stringify(data)
-                        })
-                        .then((response) => {
-                            console.log(response)
-
-                            for (var i = 0; i < this.products.length; i++) {
-                                var product = this.products[i];
-
-                                if (product.id === product_id) {
-                                    this.products[i].quantity = parseInt(this.products[i].quantity) - 1;
-                                    this.products[i].total_price = parseInt(this.products[i].quantity) * parseFloat(this.products[i].price)
-                                }
-                            }
-                        })
-                        .catch(function (error) {
-                            console.log('Error 2');
-                            console.log(error);
-                        })
-                    }
-                },
-                removeFromCart(product_id) {
-                    console.log('Remove product_id:', product_id);
-
-                    var data = {
-                        'product_id': product_id
-                    };
-
-                    fetch('/api/remove_from_cart/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': '{{ csrf_token }}'
-                        },
-                        credentials: 'same-origin',
-                        body: JSON.stringify(data)
-                    })
-                    .then((response) => {
-                        console.log(response)
-
-                        this.products = this.products.filter(product => product.id !== product_id)
-                    })
-                    .catch(function (error) {
-                        console.log('Error 2');
-                        console.log(error);
-                    })
                 }
+            },
+            removeFromCart(product_id) {
+                console.log('Remove product_id:', product_id);
+
+                var data = {
+                    'product_id': product_id
+                };
+
+                fetch('/api/remove_from_cart/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify(data)
+                })
+                .then((response) => {
+                    console.log(response)
+
+                    this.products = this.products.filter(product => product.id !== product_id)
+                })
+                .catch(function (error) {
+                    console.log('Error 2');
+                    console.log(error);
+                })
             }
-        });
-    </script>
+        }
+    });
+</script>
 {% endblock %}
