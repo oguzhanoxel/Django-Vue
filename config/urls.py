@@ -23,6 +23,7 @@ from apps.core import views as core_views
 from apps.store import views as store_views
 from apps.cart import views as cart_views
 
+from apps.coupon.api import api_can_use
 from apps.store.api import (
     api_add_to_cart,
     api_remove_from_cart,
@@ -39,6 +40,7 @@ urlpatterns = [
     path('contact/', core_views.contact, name='contact'),
     path('about/', core_views.about, name='about'),
     # API
+    path('api/can_use/', api_can_use, name="api_can_use"),
     path('api/create_checkout_session/', create_checkout_session, name='create_checkout_session'),
     path('api/add_to_cart/', api_add_to_cart, name='api_add_to_cart'),
     path('api/remove_from_cart/', api_remove_from_cart, name='api_remove_from_cart'),
