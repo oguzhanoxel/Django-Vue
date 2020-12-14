@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.sitemaps.views import sitemap
 
 from apps.cart.webhook import webhook
 from apps.core import views as core_views
@@ -31,14 +32,26 @@ from apps.store.api import (
     create_checkout_session,
 )
 
+from .sitemaps import StaticViewSitemap, CategorySitemap, ProductSitemap
+
+sitemaps = {
+    'static': StaticViewSitemap,
+    'product': ProductSitemap,
+    'category': CategorySitemap,
+}
+
 urlpatterns = [
     path('', core_views.frontpage, name='frontpage'),
+    path('search/', store_views.search, name='search'),
     path('admin/', admin.site.urls),
     path('cart/', cart_views.cart_detail, name='cart'),
     path('hooks/', webhook, name='webhook'),
     path('cart/success/', cart_views.success, name='success'),
     path('contact/', core_views.contact, name='contact'),
     path('about/', core_views.about, name='about'),
+
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.ciews.sitemap'),
+
     # API
     path('api/can_use/', api_can_use, name="api_can_use"),
     path('api/create_checkout_session/', create_checkout_session, name='create_checkout_session'),
