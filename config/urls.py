@@ -42,6 +42,7 @@ sitemaps = {
 
 urlpatterns = [
     path('', core_views.frontpage, name='frontpage'),
+    # path('order_confirmation/', core_views.order_confirmation, name='order_confirmation'),
     path('search/', store_views.search, name='search'),
     path('admin/', admin.site.urls),
     path('cart/', cart_views.cart_detail, name='cart'),
