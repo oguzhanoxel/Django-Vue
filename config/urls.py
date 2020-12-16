@@ -18,10 +18,12 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
+from django.contrib.auth import views as auth_views
 
 from apps.cart.webhook import webhook
 from apps.core import views as core_views
 from apps.store import views as store_views
+from apps.userprofile import views as userprofile_views
 from apps.cart import views as cart_views
 
 from apps.coupon.api import api_can_use
@@ -52,6 +54,13 @@ urlpatterns = [
     path('about/', core_views.about, name='about'),
 
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.ciews.sitemap'),
+
+    # Auth
+
+    path('myaccount/', userprofile_views.myaccount, name='myaccount'),
+    path('signup/', userprofile_views.signup, name='signup'),
+    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 
     # API
     path('api/can_use/', api_can_use, name="api_can_use"),

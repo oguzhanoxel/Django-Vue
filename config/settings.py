@@ -9,11 +9,10 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
+from pathlib import Path
 
 STRIPE_API_KEY_PUBLISHABLE = "pk_test_51HvlvyEUGeYMPljv0V6xn13ksnG3FZUi0Swc4XBkhkKd1FzmaR6wrbnDuK7P3aa5t2w2Jt4uvzcWJSAuPKzQMjGu00KbqPkz3h"
 STRIPE_API_KEY_HIDDEN = "sk_test_51HvlvyEUGeYMPljvtWzpEgvHd0FHxo7c9vLsQjQUObk6JG8zwVAESbOgQGCbhmLZLnlNGCAK4cFytqcyDhmKbBz300yoafmemm"
-
-from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -32,6 +31,10 @@ ALLOWED_HOSTS = []
 
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 1025
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'cart'
+LOGOUT_REDIRECT_URL = 'frontpage'
 
 # Cart
 
@@ -53,6 +56,7 @@ INSTALLED_APPS = [
     'apps.cart',
     'apps.order',
     'apps.coupon',
+    'apps.userprofile',
 ]
 
 MIDDLEWARE = [
