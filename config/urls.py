@@ -26,6 +26,7 @@ from apps.store import views as store_views
 from apps.userprofile import views as userprofile_views
 from apps.cart import views as cart_views
 
+from apps.newsletter.api import api_add_subscriber
 from apps.coupon.api import api_can_use
 from apps.store.api import (
     api_add_to_cart,
@@ -68,6 +69,8 @@ urlpatterns = [
     path('api/add_to_cart/', api_add_to_cart, name='api_add_to_cart'),
     path('api/remove_from_cart/', api_remove_from_cart, name='api_remove_from_cart'),
     path('api/checkout/', api_checkout, name='api_checkout'),
+    path('api/add_subscriber/', api_add_subscriber, name='api_add_subscriber'),
+
     # Store
     path('<slug:category_slug>/<slug:slug>/', store_views.product_detail, name='product_detail'),
     path('<slug:slug>/', store_views.category_detail, name='category_detail'),
