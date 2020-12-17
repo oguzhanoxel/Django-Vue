@@ -8,6 +8,16 @@ class SignUpForm(UserCreationForm):
     last_name = forms.CharField(max_length=50, required=True)
     email = forms.EmailField(max_length=50, required=True)
 
+    def __init__(self, *args, **kwargs):
+        super(SignUpForm, self).__init__(*args, **kwargs)
+
+        self.fields['username'].widget.attrs['class'] = 'input'
+        self.fields['first_name'].widget.attrs['class'] = 'input'
+        self.fields['last_name'].widget.attrs['class'] = 'input'
+        self.fields['email'].widget.attrs['class'] = 'input'
+        self.fields['password1'].widget.attrs['class'] = 'input'
+        self.fields['password2'].widget.attrs['class'] = 'input'
+
     class Meta:
         model = User
         fields = [
