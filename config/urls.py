@@ -22,6 +22,7 @@ from django.contrib.auth import views as auth_views
 
 from apps.cart.webhook import webhook
 from apps.core import views as core_views
+from apps.order import views as order_views
 from apps.store import views as store_views
 from apps.userprofile import views as userprofile_views
 from apps.cart import views as cart_views
@@ -48,6 +49,7 @@ urlpatterns = [
     # path('order_confirmation/', core_views.order_confirmation, name='order_confirmation'),
     path('search/', store_views.search, name='search'),
     path('admin/', admin.site.urls),
+    path('admin/admin_order_pdf/<int:order_id>/', order_views.admin_order_pdf, name='admin_order_pdf'),
     path('cart/', cart_views.cart_detail, name='cart'),
     path('hooks/', webhook, name='webhook'),
     path('cart/success/', cart_views.success, name='success'),
