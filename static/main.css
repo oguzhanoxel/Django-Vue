@@ -29,3 +29,7 @@ form ul {
     height: 500px;
     object-fit: contain;
 }
+
+.notification.space-below {
+    margin-bottom: 20px;
+}
