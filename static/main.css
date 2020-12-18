@@ -20,3 +20,12 @@ form ul {
 .newsletter-wrapper .field.has-addons {
     justify-content: center;
 }
+
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+    height: 500px;
+    object-fit: contain;
+}

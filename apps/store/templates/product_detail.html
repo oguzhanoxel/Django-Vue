@@ -4,7 +4,7 @@
 
 {% block content %}
     <div id="productapp">
-        <img :src="mainImage">
+        <img :src="mainImage" class="center">
         {% if product.images.all %}
             <hr>
             <div class="columns">
@@ -106,6 +106,15 @@
                 The product was added to the cart!
             </div>
         </article>
+
+        <hr>
+
+        <h2 class="subtitle">Related products</h2>
+
+        {% with related_products as list_products %}
+            {% include 'parts/product_list.html' %}
+        {% endwith %}
+       
     </div>
 {% endblock %}
 
