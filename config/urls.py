@@ -32,7 +32,6 @@ from apps.coupon.api import api_can_use
 from apps.store.api import (
     api_add_to_cart,
     api_remove_from_cart,
-    api_checkout,
     create_checkout_session,
 )
 
@@ -70,7 +69,6 @@ urlpatterns = [
     path('api/create_checkout_session/', create_checkout_session, name='create_checkout_session'),
     path('api/add_to_cart/', api_add_to_cart, name='api_add_to_cart'),
     path('api/remove_from_cart/', api_remove_from_cart, name='api_remove_from_cart'),
-    path('api/checkout/', api_checkout, name='api_checkout'),
     path('api/add_subscriber/', api_add_subscriber, name='api_add_subscriber'),
 
     # Store

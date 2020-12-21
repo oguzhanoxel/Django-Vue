@@ -13,6 +13,8 @@ from .models import Product
 from apps.order.models import Order
 from apps.coupon.models import Coupon
 
+from .utilities import decrement_product_quantity
+
 
 def create_checkout_session(request):
     data = json.loads(request.body)
@@ -31,8 +33,6 @@ def create_checkout_session(request):
     #
 
     cart = Cart(request)
-
-    stripe.api_key = settings.STRIPE_API_KEY_HIDDEN
 
     items = []
 
@@ -57,6 +57,7 @@ def create_checkout_session(request):
 
         items.append(obj)
 
+    stripe.api_key = settings.STRIPE_API_KEY_HIDDEN
     session = stripe.checkout.Session.create(
         payment_method_types=['card'],
         line_items=items,
@@ -64,19 +65,20 @@ def create_checkout_session(request):
         success_url='http://127.0.0.1:8000/cart/success/',
         cancel_url='http://127.0.0.1:8000/cart/'
     )
+    payment_intent = session.payment_intent
 
     # Create order
 
-    first_name = data['first_name']
-    last_name = data['last_name']
-    email = data['email']
-    address = data['address']
-    zipcode = data['zipcode']
-    place = data['place']
-    phone = data['phone']
-    payment_intent = session.payment_intent
-
-    orderid = checkout(request, first_name, last_name, email, address, zipcode, place, phone)
+    orderid = checkout(
+        request,
+        data['first_name'],
+        data['last_name'],
+        data['email'],
+        data['address'],
+        data['zipcode'],
+        data['place'],
+        data['phone']
+        )
 
     total_price = 0.00
 
@@ -93,36 +95,11 @@ def create_checkout_session(request):
     order.used_coupon = coupon_code
     order.save()
 
+    decrement_product_quantity(order)
+
     #
 
     return JsonResponse({'session': session})
-
-
-def api_checkout(request):
-    cart = Cart(request)
-
-    data = json.loads(request.body)
-    jsonresponse = {'success': True}
-    first_name = data['first_name']
-    last_name = data['last_name']
-    email = data['email']
-    address = data['address']
-    zipcode = data['zipcode']
-    place = data['place']
-
-    orderid = checkout(request, first_name, last_name, email, address, zipcode, place)
-
-    paid = True
-
-    if paid is True:
-        order = Order.objects.get(pk=orderid)
-        order.paid = True
-        order.paid_amount = cart.get_total_cost()
-        order.save()
-
-        cart.clear()
-
-    return JsonResponse(jsonresponse)
 
 
 def api_add_to_cart(request):

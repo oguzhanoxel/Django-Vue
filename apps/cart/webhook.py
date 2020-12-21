@@ -11,6 +11,8 @@ from django.core.mail import EmailMultiAlternatives
 from apps.order.models import Order
 from apps.order.views import render_to_pdf
 
+from apps.store.utilities import decrement_product_quantity
+
 
 @csrf_exempt
 def webhook(request):
@@ -35,10 +37,7 @@ def webhook(request):
         order.paid = True
         order.save()
 
-        for item in order.items.all():
-            product = item.product
-            product.num_available = product.num_available - item.quantity
-            product.save()
+        decrement_product_quantity(order)
 
         subject = 'Order confirmation'
         from_email = 'noreply@django-vue.com'
