@@ -1,4 +1,5 @@
 import random
+from datetime import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 
@@ -32,6 +33,9 @@ def search(request):
 
 def product_detail(request, category_slug, slug):
     product = get_object_or_404(Product, slug=slug)
+    product.num_visits = product.num_visits + 1
+    product.last_visit = datetime.now()
+    product.save()
 
     # Add review
     if request.method == 'POST' and request.user.is_authenticated:

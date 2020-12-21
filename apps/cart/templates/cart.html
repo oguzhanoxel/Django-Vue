@@ -234,7 +234,7 @@
                 }
 
                 return this.errors.length;
-            }
+            },
             applyCoupon() {
                 if (this.coupon_code !== '') {
                     fetch('/api/can_use/?coupon_code=' + this.coupon_code, {
